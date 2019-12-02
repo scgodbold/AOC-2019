@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
@@ -17,6 +18,24 @@ func init() {
 	flag.Parse()
 }
 
+func readInput(path string) ([]string, error) {
+	var parsed []string
+
+	f, err := os.Open(path)
+	defer f.Close()
+
+	if err != nil {
+		return parsed, err
+	}
+
+	scanner := bufio.NewScanner(f)
+
+	for scanner.Scan() {
+		parsed = append(parsed, scanner.Text())
+	}
+	return parsed, nil
+}
+
 func main() {
 	if day == 0 {
 		panic("Please provide a day to run")
@@ -27,16 +46,11 @@ func main() {
 	inputPath := fmt.Sprintf("%v/%v.txt", inputDir, fmtedDay)
 	fmt.Printf("Reading input from: %v\n", inputPath)
 
-	input, err := os.Open(inputPath)
-	defer input.Close()
+	input, err := readInput(inputPath)
 	if err != nil {
 		panic(err)
 	}
 
-	// TODO: Dynamically call the correct day based on inputs
-	val, err := CalculateDayOne(input)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("Answer for day %d: %v", day, val)
+	// // TODO: Dynamically call the correct day based on inputs
+	DayOne(input)
 }
