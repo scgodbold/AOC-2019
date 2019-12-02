@@ -52,5 +52,10 @@ func main() {
 	}
 
 	// // TODO: Dynamically call the correct day based on inputs
-	DayOne(input)
+	switch day {
+	case 1:
+		DayOne(input)
+	case 2:
+		DayTwo(input)
+	}
 }
