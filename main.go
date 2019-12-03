@@ -5,6 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	"github.com/scgodbold/AOC-2019/one"
+	"github.com/scgodbold/AOC-2019/three"
+	"github.com/scgodbold/AOC-2019/two"
 )
 
 var day int
@@ -54,8 +58,10 @@ func main() {
 	// // TODO: Dynamically call the correct day based on inputs
 	switch day {
 	case 1:
-		DayOne(input)
+		one.DayOne(input)
 	case 2:
-		DayTwo(input)
+		two.DayTwo(input)
+	case 3:
+		three.DayThree(input)
 	}
 }
