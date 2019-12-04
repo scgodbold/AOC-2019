@@ -21,7 +21,7 @@ type board struct {
 	Graph         [][]position
 	Origin        point
 	Intersections []point
-	WireCount     int
+	wireCount     int
 }
 
 type instruction struct {
@@ -30,7 +30,8 @@ type instruction struct {
 }
 
 type wire struct {
-	Steps []instruction
+	CurrentPosition point
+	Steps           []instruction
 }
 
 func newBoard(max int) (*board, error) {
@@ -39,20 +40,51 @@ func newBoard(max int) (*board, error) {
 
 	b.Graph = make([][]position, edge)
 	b.Origin = point{max, max}
-	b.WireCount = 0
+	b.wireCount = 0
 	for i := 0; i < edge; i++ {
 		row := make([]position, edge)
 		b.Graph[i] = row
 	}
+	b.Graph[b.Origin.X][b.Origin.Y].WireA = true
+	b.Graph[b.Origin.X][b.Origin.Y].WireB = true
 	return &b, nil
 }
 
-func (b *board) wireStep(step instruction) {
+func (b *board) WirePresent(p point) {
+	if b.wireCount == 0 {
+		b.Graph[p.X][p.Y].WireA = true
+	} else {
+		b.Graph[p.X][p.Y].WireB = true
+	}
+
+	if b.Graph[p.X][p.Y].WireA && b.Graph[p.X][p.Y].WireB {
+		b.Intersections = append(b.Intersections, point{p.X, p.Y})
+	}
 }
 
-func (b *board) AddWire(wire []w) {
-	for _, step := range wire.Steps {
+func (b *board) wireStep(step instruction, w *wire) {
+	for i := 0; i < step.Magnitude; i++ {
+		switch step.Direction {
+		case 'U':
+			w.CurrentPosition.Y += 1
+		case 'D':
+			w.CurrentPosition.Y -= 1
+		case 'R':
+			w.CurrentPosition.X += 1
+		case 'L':
+			w.CurrentPosition.X -= 1
+		}
+		b.WirePresent(w.CurrentPosition)
+	}
+}
 
+func (b *board) AddWires(wires []*wire) {
+	for _, w := range wires {
+		w.CurrentPosition = point{b.Origin.X, b.Origin.Y}
+		for _, step := range w.Steps {
+			b.wireStep(step, w)
+		}
+		b.wireCount += 1
 	}
 }
 
@@ -72,7 +104,7 @@ func newWire(input string) (*wire, error) {
 	return &w, nil
 }
 
-func wiresLargestDirection(wires []wire) int {
+func wiresLargestDirection(wires []*wire) int {
 	var (
 		max  float64
 		curX int
@@ -104,9 +136,32 @@ func wiresLargestDirection(wires []wire) int {
 	return int(max)
 }
 
+func DayThreePartOne(input []string) {
+	// Input -> wires
+	wires := make([]*wire, len(input))
+	for i, val := range input {
+		w, _ := newWire(val)
+		wires[i] = w
+	}
+
+	// Build our board, laydown the wires
+	maxMagnitude := wiresLargestDirection(wires)
+	b, _ := newBoard(maxMagnitude)
+	b.AddWires(wires)
+
+	// Calculate the minimum
+	lowestVal := -1
+	for _, p := range b.Intersections {
+		xMagnitude := math.Abs(float64(p.X - b.Origin.X))
+		yMagnitude := math.Abs(float64(p.Y - b.Origin.Y))
+		if lowestVal == -1 || lowestVal > int(xMagnitude+yMagnitude) {
+			lowestVal = int(xMagnitude + yMagnitude)
+		}
+	}
+	fmt.Println(lowestVal)
+}
+
 func DayThree(input []string) {
 	fmt.Println("Hello World")
-	b, _ := newBoard(2)
-	fmt.Printf("%v\n", b.Graph)
-	fmt.Printf("%v\n", b.Origin)
+	DayThreePartOne(input)
 }
