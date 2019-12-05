@@ -9,6 +9,7 @@ import (
 	"github.com/scgodbold/AOC-2019/one"
 	"github.com/scgodbold/AOC-2019/three"
 	"github.com/scgodbold/AOC-2019/two"
+	"github.com/scgodbold/AOC-2019/four"
 )
 
 var day int
@@ -63,5 +64,7 @@ func main() {
 		two.DayTwo(input)
 	case 3:
 		three.DayThree(input)
+	case 4:
+		four.DayFour(input)
 	}
 }
