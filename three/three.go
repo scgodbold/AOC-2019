@@ -8,13 +8,15 @@ import (
 )
 
 type point struct {
-	X int
-	Y int
+	X     int
+	Y     int
+	WireA int
+	WireB int
 }
 
 type position struct {
-	WireA bool
-	WireB bool
+	WireA int
+	WireB int
 }
 
 type board struct {
@@ -32,6 +34,7 @@ type instruction struct {
 type wire struct {
 	CurrentPosition point
 	Steps           []instruction
+	Distance        int
 }
 
 func newBoard(max int) (*board, error) {
@@ -39,26 +42,26 @@ func newBoard(max int) (*board, error) {
 	edge := (max * 2) + 1
 
 	b.Graph = make([][]position, edge)
-	b.Origin = point{max, max}
+	b.Origin = point{max, max, 0, 0}
 	b.wireCount = 0
 	for i := 0; i < edge; i++ {
 		row := make([]position, edge)
 		b.Graph[i] = row
 	}
-	b.Graph[b.Origin.X][b.Origin.Y].WireA = true
-	b.Graph[b.Origin.X][b.Origin.Y].WireB = true
+	b.Graph[b.Origin.X][b.Origin.Y].WireA = 0
+	b.Graph[b.Origin.X][b.Origin.Y].WireB = 0
 	return &b, nil
 }
 
-func (b *board) WirePresent(p point) {
+func (b *board) WirePresent(p point, distance int) {
 	if b.wireCount == 0 {
-		b.Graph[p.X][p.Y].WireA = true
+		b.Graph[p.X][p.Y].WireA = distance
 	} else {
-		b.Graph[p.X][p.Y].WireB = true
+		b.Graph[p.X][p.Y].WireB = distance
 	}
 
-	if b.Graph[p.X][p.Y].WireA && b.Graph[p.X][p.Y].WireB {
-		b.Intersections = append(b.Intersections, point{p.X, p.Y})
+	if b.Graph[p.X][p.Y].WireA > 0 && b.Graph[p.X][p.Y].WireB > 0 {
+		b.Intersections = append(b.Intersections, point{p.X, p.Y, b.Graph[p.X][p.Y].WireA, b.Graph[p.X][p.Y].WireB})
 	}
 }
 
@@ -74,13 +77,15 @@ func (b *board) wireStep(step instruction, w *wire) {
 		case 'L':
 			w.CurrentPosition.X -= 1
 		}
-		b.WirePresent(w.CurrentPosition)
+		w.Distance += 1
+		b.WirePresent(w.CurrentPosition, w.Distance)
 	}
+
 }
 
 func (b *board) AddWires(wires []*wire) {
 	for _, w := range wires {
-		w.CurrentPosition = point{b.Origin.X, b.Origin.Y}
+		w.CurrentPosition = point{b.Origin.X, b.Origin.Y, 0, 0}
 		for _, step := range w.Steps {
 			b.wireStep(step, w)
 		}
@@ -100,6 +105,7 @@ func newWire(input string) (*wire, error) {
 
 		w.Steps = append(w.Steps, instruction{direction, magnitude})
 	}
+	w.Distance = 0
 
 	return &w, nil
 }
@@ -136,7 +142,7 @@ func wiresLargestDirection(wires []*wire) int {
 	return int(max)
 }
 
-func DayThreePartOne(input []string) {
+func DayThree(input []string) {
 	// Input -> wires
 	wires := make([]*wire, len(input))
 	for i, val := range input {
@@ -151,17 +157,18 @@ func DayThreePartOne(input []string) {
 
 	// Calculate the minimum
 	lowestVal := -1
+	lowestSteps := -1
 	for _, p := range b.Intersections {
 		xMagnitude := math.Abs(float64(p.X - b.Origin.X))
 		yMagnitude := math.Abs(float64(p.Y - b.Origin.Y))
+		totalSteps := p.WireA + p.WireB
 		if lowestVal == -1 || lowestVal > int(xMagnitude+yMagnitude) {
 			lowestVal = int(xMagnitude + yMagnitude)
 		}
+		if lowestSteps == -1 || lowestSteps > totalSteps {
+			lowestSteps = totalSteps
+		}
 	}
-	fmt.Println(lowestVal)
-}
-
-func DayThree(input []string) {
-	fmt.Println("Hello World")
-	DayThreePartOne(input)
+	fmt.Printf("Closest intersection to the Origin: %v\n", lowestVal)
+	fmt.Printf("Intersection with the fewest steps: %v\n", lowestSteps)
 }

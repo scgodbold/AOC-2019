@@ -31,13 +31,14 @@ func compareIntersections(x []point, y []point) bool {
 func TestNewWire(t *testing.T) {
 	input := "U1,D1,L1,R1"
 	expected := wire{
-		point{0, 0},
+		point{0, 0, 0, 0},
 		[]instruction{
 			instruction{'U', 1},
 			instruction{'D', 1},
 			instruction{'L', 1},
 			instruction{'R', 1},
 		},
+		0,
 	}
 
 	out, err := newWire(input)
@@ -54,17 +55,19 @@ func TestNewWire(t *testing.T) {
 func TestWireLargestDirection(t *testing.T) {
 	input := []*wire{
 		&wire{
-			point{0, 0},
+			point{0, 0, 0, 0},
 			[]instruction{
 				instruction{'U', 15},
 				instruction{'U', 15},
 			},
+			0,
 		},
 		&wire{
-			point{0, 0},
+			point{0, 0, 0, 0},
 			[]instruction{
 				instruction{'R', 15},
 			},
+			0,
 		},
 	}
 	expected := 30
@@ -79,27 +82,29 @@ func TestAddWires(t *testing.T) {
 	b, _ := newBoard(8)
 	input := []*wire{
 		&wire{
-			point{0, 0},
+			point{0, 0, 0, 0},
 			[]instruction{
 				instruction{'R', 8},
 				instruction{'U', 5},
 				instruction{'L', 5},
 				instruction{'D', 3},
 			},
+			0,
 		},
 		&wire{
-			point{0, 0},
+			point{0, 0, 0, 0},
 			[]instruction{
 				instruction{'U', 7},
 				instruction{'R', 6},
 				instruction{'D', 4},
 				instruction{'L', 4},
 			},
+			0,
 		},
 	}
 	expected := []point{
-		point{14, 13},
-		point{11, 11},
+		point{14, 13, 0, 0},
+		point{11, 11, 0, 0},
 	}
 	b.AddWires(input)
 
