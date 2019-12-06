@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/scgodbold/AOC-2019/five"
+	"github.com/scgodbold/AOC-2019/four"
 	"github.com/scgodbold/AOC-2019/one"
 	"github.com/scgodbold/AOC-2019/three"
 	"github.com/scgodbold/AOC-2019/two"
-	"github.com/scgodbold/AOC-2019/four"
 )
 
 var day int
@@ -66,5 +67,7 @@ func main() {
 		three.DayThree(input)
 	case 4:
 		four.DayFour(input)
+	case 5:
+		five.DayFive(input)
 	}
 }
