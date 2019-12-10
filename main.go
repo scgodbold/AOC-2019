@@ -9,6 +9,7 @@ import (
 	"github.com/scgodbold/AOC-2019/five"
 	"github.com/scgodbold/AOC-2019/four"
 	"github.com/scgodbold/AOC-2019/one"
+	"github.com/scgodbold/AOC-2019/six"
 	"github.com/scgodbold/AOC-2019/three"
 	"github.com/scgodbold/AOC-2019/two"
 )
@@ -69,5 +70,7 @@ func main() {
 		four.DayFour(input)
 	case 5:
 		five.DayFive(input)
+	case 6:
+		six.DaySix(input)
 	}
 }
