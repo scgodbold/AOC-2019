@@ -8,30 +8,45 @@ import (
 	"strings"
 )
 
-// {{{1 operations
-type operation struct {
-	Code       int
-	ParamMode0 bool
-	ParamMode1 bool
-	ParamMode2 bool
+const (
+	DEBUG = false
+)
+
+func log(line string) {
+	if DEBUG {
+		fmt.Println(line)
+	}
 }
 
-func newOperation(input int) *operation {
-	op := operation{99, false, false, false}
+// {{{1 operations
+type operation struct {
+	//Operations XYZ0C
+	Code int
+	PosX bool
+	PosY bool
+	PosZ bool
+}
 
-	if input >= 10000 {
-		op.ParamMode2 = true
-		input -= 10000
+func (p *Program) NewOperation(input int) *operation {
+	op := operation{99, true, true, true}
+	copy_input := input
+
+	if copy_input >= 10000 {
+		log(fmt.Sprintf("Setting Z to immediate for input %v", input))
+		op.PosZ = false
+		copy_input -= 10000
 	}
-	if input >= 1000 {
-		op.ParamMode1 = true
-		input -= 1000
+	if copy_input >= 1000 {
+		log(fmt.Sprintf("Setting Y to immediate for input %v", input))
+		op.PosY = false
+		copy_input -= 1000
 	}
-	if input >= 100 {
-		op.ParamMode0 = true
-		input -= 100
+	if copy_input >= 100 {
+		log(fmt.Sprintf("Setting X to immediate for input %v", input))
+		op.PosX = false
+		copy_input -= 100
 	}
-	op.Code = input
+	op.Code = copy_input
 	return &op
 }
 
@@ -50,60 +65,43 @@ func (p *Program) Reset() {
 	p.Pointer = 0
 }
 
-func (p *Program) opAdd(op *operation) {
-	var (
-		x int
-		y int
-	)
-	if op.ParamMode0 {
-		x = p.Memory[p.Pointer+1]
-	} else {
-		x = p.Memory[p.Memory[p.Pointer+1]]
-	}
-	if op.ParamMode0 {
-		y = p.Memory[p.Pointer+2]
-	} else {
-		y = p.Memory[p.Memory[p.Pointer+2]]
-	}
-
-	fmt.Println(x)
-	fmt.Println(y)
-	fmt.Println(p.Pointer + 3)
-	fmt.Println(p.Memory[p.Pointer+3])
-
-	p.Memory[p.Pointer+3] = (x + y)
+func (p *Program) Write(pos int, val int) {
+	pointer := p.Memory[pos]
+	log(fmt.Sprintf("Writing %v to position %v", val, pointer))
+	p.Memory[pointer] = val
 }
 
-func (p *Program) opMult(op *operation) {
-	var (
-		x int
-		y int
-	)
-	if op.ParamMode0 {
-		x = p.Memory[p.Pointer+1]
-	} else {
-		x = p.Memory[p.Memory[p.Pointer+1]]
+func (p *Program) fetchVal(pointer int, pos bool) int {
+	if pos {
+		log(fmt.Sprintf("Fetching value from [Positional] %v", p.Memory[pointer]))
+		return p.Memory[p.Memory[pointer]]
 	}
-	if op.ParamMode0 {
-		y = p.Memory[p.Pointer+2]
-	} else {
-		y = p.Memory[p.Memory[p.Pointer+2]]
-	}
-
-	p.Memory[p.Pointer+3] = x * y
+	log(fmt.Sprintf("Fetching value from [Immediate] %v", pointer))
+	return p.Memory[pointer]
 }
 
-func (p *Program) opPut(op *operation) {
-	var out int
-	if op.ParamMode0 {
-		out = p.Memory[p.Pointer+1]
-	} else {
-		out = p.Memory[p.Memory[p.Pointer+1]]
-	}
-	fmt.Printf("%v\n", out)
+func (p *Program) Add(op *operation) {
+	x := p.fetchVal(p.Pointer+1, op.PosX)
+	y := p.fetchVal(p.Pointer+2, op.PosY)
+	log(fmt.Sprintf("Adding values %v and %v", x, y))
+
+	p.Write(p.Pointer+3, x+y)
 }
 
-func (p *Program) opGet(op *operation) {
+func (p *Program) Multiply(op *operation) {
+	x := p.fetchVal(p.Pointer+1, op.PosX)
+	y := p.fetchVal(p.Pointer+2, op.PosY)
+	log(fmt.Sprintf("Multiplying values %v and %v", x, y))
+
+	p.Write(p.Pointer+3, x*y)
+}
+
+func (p *Program) Print(op *operation) {
+	val := p.fetchVal(p.Pointer+1, op.PosX)
+	fmt.Printf("Writing val: %v\n", val)
+}
+
+func (p *Program) Get(op *operation) {
 	var (
 		cleaned int
 		err     error
@@ -115,32 +113,93 @@ func (p *Program) opGet(op *operation) {
 		if err == nil {
 			break
 		}
-		fmt.Println("Try again, must be an integer")
+		fmt.Println("Error: Unable to convert '%v'to integer", raw)
 	}
-	p.Memory[p.Memory[p.Pointer+1]] = cleaned
+	p.Write(p.Pointer+1, cleaned)
+}
+
+func (p *Program) JumpIfTrue(op *operation) {
+	val := p.fetchVal(p.Pointer+1, op.PosX)
+	log(fmt.Sprintf("Jumping if true on value: %v", val))
+	if val != 0 {
+		new_pointer := p.fetchVal(p.Pointer+2, op.PosY)
+		log(fmt.Sprintf("Setting program pointer to: %v", new_pointer))
+		p.Pointer = new_pointer
+	} else {
+		p.Pointer += 3
+	}
+}
+
+func (p *Program) JumpIfFalse(op *operation) {
+	val := p.fetchVal(p.Pointer+1, op.PosX)
+	log(fmt.Sprintf("Jumping if false on value: %v", val))
+	if val == 0 {
+		new_pointer := p.fetchVal(p.Pointer+2, op.PosY)
+		log(fmt.Sprintf("Setting program pointer to: %v", new_pointer))
+		p.Pointer = new_pointer
+	} else {
+		p.Pointer += 3
+	}
+}
+
+func (p *Program) CheckLessThan(op *operation) {
+	first := p.fetchVal(p.Pointer+1, op.PosX)
+	second := p.fetchVal(p.Pointer+2, op.PosY)
+	if first < second {
+		p.Write(p.Pointer+3, 1)
+	} else {
+		p.Write(p.Pointer+3, 0)
+	}
+}
+
+func (p *Program) CheckEqual(op *operation) {
+	first := p.fetchVal(p.Pointer+1, op.PosX)
+	second := p.fetchVal(p.Pointer+2, op.PosY)
+	if first == second {
+		p.Write(p.Pointer+3, 1)
+	} else {
+		p.Write(p.Pointer+3, 0)
+	}
 }
 
 func (p *Program) Run() {
 	for {
-		if len(p.Memory) < p.Pointer {
+		if len(p.Memory) <= p.Pointer {
 			break
 		}
-		op := newOperation(p.Memory[p.Pointer])
+		op := p.NewOperation(p.Memory[p.Pointer])
+		log(fmt.Sprintf("Executing Operation: %v", op))
 		switch op.Code {
 		case 1:
-			p.opAdd(op)
+			p.Add(op)
+			p.Pointer += 4
 		case 2:
-			p.opMult(op)
+			p.Multiply(op)
+			p.Pointer += 4
 		case 3:
-			p.opGet(op)
+			p.Get(op)
+			p.Pointer += 2
 		case 4:
-			p.opPut(op)
+			p.Print(op)
+			p.Pointer += 2
+		case 5:
+			p.JumpIfTrue(op)
+		case 6:
+			p.JumpIfFalse(op)
+		case 7:
+			p.CheckLessThan(op)
+			p.Pointer += 4
+		case 8:
+			p.CheckEqual(op)
+			p.Pointer += 4
 		case 99:
+			p.Pointer = len(p.Memory)
 			break
 		default:
+			log(fmt.Sprintf("Got invalid operation: %v", op))
+			p.Pointer = len(p.Memory)
 			break
 		}
-		p.Pointer += 4
 	}
 }
 
