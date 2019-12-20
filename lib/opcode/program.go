@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-const DEBUG = true
+const DEBUG = false
 
 type Program struct {
 	Memory  *memory
@@ -25,7 +25,7 @@ func (p *Program) Reset() {
 func (p *Program) Add(i *instruction) {
 	x := p.Memory.Get(i.ParamOnePointer)
 	y := p.Memory.Get(i.ParamTwoPointer)
-	writePointer := p.Memory.Get(i.ParamThreePointer)
+	writePointer := i.ParamThreePointer
 	log(fmt.Sprintf("[Program.Add] - Adding values %v & %v", x, y))
 	p.Memory.Set(writePointer, x+y)
 	p.Pointer += 4
@@ -34,13 +34,14 @@ func (p *Program) Add(i *instruction) {
 func (p *Program) Multiply(i *instruction) {
 	x := p.Memory.Get(i.ParamOnePointer)
 	y := p.Memory.Get(i.ParamTwoPointer)
-	writePointer := p.Memory.Get(i.ParamThreePointer)
+	writePointer := i.ParamThreePointer
 	log(fmt.Sprintf("[Program.Multiply] - Multiplying values %v & %v", x, y))
 	p.Memory.Set(writePointer, x*y)
 	p.Pointer += 4
 }
 
 func (p *Program) End(i *instruction) {
+	log("[Program.End] Exiting Program")
 	p.Pointer = p.Memory.Size + 1
 }
 
@@ -52,9 +53,11 @@ func (p *Program) Step() {
 	case 1:
 		p.Add(i)
 	case 2:
+		p.Multiply(i)
+	case 99:
 		p.End(i)
 	default:
-		p.End(i)
+		log(fmt.Sprintf("[Program.Error] - Reached unknown opcode %v", i.Code))
 	}
 }
 

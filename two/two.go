@@ -3,69 +3,7 @@ package two
 import (
 	"fmt"
 	"github.com/scgodbold/AOC-2019/lib/opcode"
-	"strconv"
-	"strings"
 )
-
-type Program struct {
-	DefaultMemory []int
-	Memory        []int
-	Pointer       int
-}
-
-func NewProgram(input []string) (*Program, error) {
-	var prog Program
-	for _, line := range input {
-		for _, val := range strings.Split(line, ",") {
-			cleaned, err := strconv.Atoi(val)
-			if err != nil {
-				return nil, err
-			}
-			prog.DefaultMemory = append(prog.DefaultMemory, cleaned)
-		}
-	}
-	prog.Reset()
-	return &prog, nil
-}
-
-func (p *Program) Reset() {
-	p.Memory = make([]int, len(p.DefaultMemory))
-	copy(p.Memory, p.DefaultMemory)
-	p.Pointer = 0
-}
-
-func (p *Program) Run() {
-	for {
-		if len(p.Memory) < p.Pointer {
-			break
-		}
-		switch p.Memory[p.Pointer] {
-		case 1:
-			p.opAdd()
-		case 2:
-			p.opMult()
-		case 99:
-			break
-		default:
-			break
-		}
-		p.Pointer += 4
-	}
-}
-
-func (p *Program) opMult() {
-	xVal := p.Memory[p.Memory[p.Pointer+1]]
-	yVal := p.Memory[p.Memory[p.Pointer+2]]
-	storePos := p.Memory[p.Pointer+3]
-	p.Memory[storePos] = xVal * yVal
-}
-
-func (p *Program) opAdd() {
-	xVal := p.Memory[p.Memory[p.Pointer+1]]
-	yVal := p.Memory[p.Memory[p.Pointer+2]]
-	storePos := p.Memory[p.Pointer+3]
-	p.Memory[storePos] = xVal + yVal
-}
 
 func DayTwoPartOne(prog *opcode.Program) {
 	// Alter Noun and Verb state of program
@@ -119,10 +57,6 @@ func DayTwoPartTwo(prog *opcode.Program) (int, int) {
 func DayTwo(input []string) {
 
 	prog := opcode.NewProgram(input)
-	// if err != nil {
-	// 	fmt.Printf("Failed to parse program for Day2 Part1: %v\n", err)
-	// 	return
-	// }
 
 	// Part one solution
 	DayTwoPartOne(prog)
@@ -130,6 +64,6 @@ func DayTwo(input []string) {
 
 	prog.Reset()
 	// Part two solution
-	// noun, verb := DayTwoPartTwo(prog)
-	// fmt.Printf("Noun (%v) and Verb (%v) provide expected output", noun, verb)
+	noun, verb := DayTwoPartTwo(prog)
+	fmt.Printf("Noun (%v) and Verb (%v) provide expected output", noun, verb)
 }
