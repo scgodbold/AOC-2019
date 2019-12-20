@@ -2,6 +2,7 @@ package two
 
 import (
 	"fmt"
+	"github.com/scgodbold/AOC-2019/lib/opcode"
 	"strconv"
 	"strings"
 )
@@ -66,16 +67,16 @@ func (p *Program) opAdd() {
 	p.Memory[storePos] = xVal + yVal
 }
 
-func DayTwoPartOne(prog *Program) {
+func DayTwoPartOne(prog *opcode.Program) {
 	// Alter Noun and Verb state of program
-	prog.Memory[1] = 12
-	prog.Memory[2] = 2
+	prog.Memory.Set(1, 12)
+	prog.Memory.Set(2, 2)
 
 	// Execute Program
 	prog.Run()
 }
 
-func DayTwoPartTwo(prog *Program) (int, int) {
+func DayTwoPartTwo(prog *opcode.Program) (int, int) {
 	const (
 		wanted    = 19690720
 		nounBound = 99
@@ -90,11 +91,11 @@ func DayTwoPartTwo(prog *Program) (int, int) {
 	for i := 0; i <= nounBound; i++ {
 		for j := 0; j <= verbBound; j++ {
 			prog.Reset()
-			prog.Memory[1] = i
-			prog.Memory[2] = j
+			prog.Memory.Set(1, i)
+			prog.Memory.Set(2, j)
 			prog.Run()
 
-			if prog.Memory[0] == wanted {
+			if prog.Memory.Get(0) == wanted {
 				found = true
 				noun = i
 				verb = j
@@ -103,7 +104,7 @@ func DayTwoPartTwo(prog *Program) (int, int) {
 
 			// Since we can only make values larger if the value
 			// was larger then what we want, this isnt working move along
-			if prog.Memory[0] > wanted {
+			if prog.Memory.Get(0) > wanted {
 				break
 			}
 		}
@@ -116,18 +117,19 @@ func DayTwoPartTwo(prog *Program) (int, int) {
 }
 
 func DayTwo(input []string) {
-	prog, err := NewProgram(input)
-	if err != nil {
-		fmt.Printf("Failed to parse program for Day2 Part1: %v\n", err)
-		return
-	}
+
+	prog := opcode.NewProgram(input)
+	// if err != nil {
+	// 	fmt.Printf("Failed to parse program for Day2 Part1: %v\n", err)
+	// 	return
+	// }
 
 	// Part one solution
 	DayTwoPartOne(prog)
-	fmt.Printf("Return value of the program upon execution is: %v\n", prog.Memory[0])
+	fmt.Printf("Return value of the program upon execution is: %v\n", prog.Memory.Get(0))
 
 	prog.Reset()
 	// Part two solution
-	noun, verb := DayTwoPartTwo(prog)
-	fmt.Printf("Noun (%v) and Verb (%v) provide expected output", noun, verb)
+	// noun, verb := DayTwoPartTwo(prog)
+	// fmt.Printf("Noun (%v) and Verb (%v) provide expected output", noun, verb)
 }
