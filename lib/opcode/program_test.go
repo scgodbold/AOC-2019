@@ -20,6 +20,20 @@ func compProgram(a Program, b Program) bool {
 		}
 	}
 
+	// Compare Outputs
+	for i, v := range a.Outputs {
+		if v != b.Outputs[i] {
+			return false
+		}
+	}
+
+	// Compare Inputs
+	for i, v := range a.Inputs {
+		if v != b.Inputs[i] {
+			return false
+		}
+	}
+
 	return true
 }
 
@@ -31,6 +45,9 @@ func TestProgramAdd(t *testing.T) {
 			4,
 		},
 		0,
+		[]int{},
+		[]int{},
+		0
 	}
 
 	input := &instruction{
@@ -47,6 +64,9 @@ func TestProgramAdd(t *testing.T) {
 			4,
 		},
 		4,
+		[]int{},
+		[]int{},
+		0
 	}
 
 	test.Add(input)
@@ -64,6 +84,9 @@ func TestProgramMultiply(t *testing.T) {
 			5,
 		},
 		0,
+		[]int{},
+		[]int{},
+		0
 	}
 
 	input := &instruction{
@@ -80,6 +103,9 @@ func TestProgramMultiply(t *testing.T) {
 			5,
 		},
 		4,
+		[]int{},
+		[]int{},
+		0
 	}
 
 	test.Multiply(input)
@@ -103,6 +129,9 @@ func TestProgramJumpIfTrue(t *testing.T) {
 					5,
 				},
 				0,
+				[]int{},
+		[]int{},
+		0
 			},
 			&instruction{
 				1,
@@ -120,6 +149,9 @@ func TestProgramJumpIfTrue(t *testing.T) {
 					5,
 				},
 				0,
+				[]int{},
+		[]int{},
+		0
 			},
 			&instruction{
 				1,
@@ -154,6 +186,9 @@ func TestProgramJumpIfFalse(t *testing.T) {
 					5,
 				},
 				0,
+				[]int{},
+		[]int{},
+		0
 			},
 			&instruction{
 				1,
@@ -171,6 +206,7 @@ func TestProgramJumpIfFalse(t *testing.T) {
 					5,
 				},
 				0,
+				[]int{},
 			},
 			&instruction{
 				1,
@@ -204,6 +240,7 @@ func TestProgramLessThan(t *testing.T) {
 					5,
 				},
 				0,
+				[]int{},
 			},
 			&instruction{
 				1,
@@ -221,6 +258,7 @@ func TestProgramLessThan(t *testing.T) {
 					5,
 				},
 				0,
+				[]int{},
 			},
 			&instruction{
 				1,
@@ -255,6 +293,7 @@ func TestProgramEqual(t *testing.T) {
 					5,
 				},
 				0,
+				[]int{},
 			},
 			&instruction{
 				1,
@@ -272,6 +311,7 @@ func TestProgramEqual(t *testing.T) {
 					5,
 				},
 				0,
+				[]int{},
 			},
 			&instruction{
 				1,
@@ -288,6 +328,49 @@ func TestProgramEqual(t *testing.T) {
 
 		if test.Program.Pointer != 4 || test.Program.Memory.Get(3) != test.Expected {
 			t.Errorf("Program failed EqualTo operation (%v). Expected (%v, %v), Got (%v, %v)", test.Input, test.Expected, 4, test.Program.Memory.Get(3), test.Program.Pointer)
+		}
+	}
+}
+
+func TestProgramOutput(t *testing.T) {
+	tests := []struct {
+		Program  Program
+		Input    *instruction
+		Expected Program
+	}{
+		{
+			Program{
+				&memory{
+					[]int{5, 2, 2, 99, 0},
+					[]int{5, 2, 2, 99, 0},
+					5,
+				},
+				0,
+				[]int{},
+			},
+			&instruction{
+				1,
+				0,
+				0,
+				3,
+			},
+			Program{
+				&memory{
+					[]int{5, 2, 2, 99, 0},
+					[]int{5, 2, 2, 99, 0},
+					5,
+				},
+				2,
+				[]int{5},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		test.Program.Output(test.Input)
+
+		if !compProgram(test.Program, test.Expected) {
+			t.Errorf("Program failed Output operation. Expected (%v, %v), Got (%v, %v)", test.Program.Outputs, test.Program.Pointer, test.Expected.Outputs, test.Expected.Pointer)
 		}
 	}
 }

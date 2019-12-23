@@ -7,8 +7,11 @@ import (
 const DEBUG = false
 
 type Program struct {
-	Memory  *memory
-	Pointer int
+	Memory       *memory
+	Pointer      int
+	Outputs      []int
+	Inputs       []int
+	inputPointer int
 }
 
 func log(line string) {
@@ -90,6 +93,35 @@ func (p *Program) Equal(i *instruction) {
 	p.Pointer += 4
 }
 
+func (p *Program) Output(i *instruction) {
+	val := p.Memory.Get(i.ParamOnePointer)
+	log(fmt.Sprintf("[Program.Output] - Outputing Value %v", val))
+	p.Outputs = append(p.Outputs, val)
+	p.Pointer += 2
+}
+
+// Instead of going to STDIN, I am going to preload Inputs
+// To the program letting it be automated further on
+func (p *Program) AddInput(val int) {
+	log(fmt.Sprintf("[Program.AddInput] - Adding Value as input: %v", val))
+	p.Inputs = append(p.Inputs, val)
+}
+
+func (p *Program) Input(i *instruction) {
+	if len(p.Inputs) < 1 || len(p.Inputs) <= p.inputPointer {
+		log(fmt.Sprintf("[Program.Input] Unable to get input, setting program to exit"))
+		p.End(i)
+	}
+
+	val := p.Inputs[p.inputPointer]
+	p.inputPointer += 1
+
+	log(fmt.Sprintf("[Program.Input] Writting input value %v", val))
+	p.Memory.Set(i.ParamOnePointer, val)
+
+	p.Pointer += 2
+}
+
 func (p *Program) End(i *instruction) {
 	log("[Program.End] Exiting Program")
 	p.Pointer = p.Memory.Size + 1
@@ -107,7 +139,7 @@ func (p *Program) Step() {
 	case 3:
 		break
 	case 4:
-		p.Put(i)
+		p.Output(i)
 	case 5:
 		p.JumpIfTrue(i)
 	case 6:
@@ -134,7 +166,10 @@ func (p *Program) Run() {
 
 func (p *Program) Initialize(input []string) {
 	p.Memory = NewMemory(input)
+	p.Outputs = []int{}
+	p.Inputs = []int{}
 	p.Pointer = 0
+	p.inputPointer = 0
 }
 
 func NewProgram(input []string) *Program {
