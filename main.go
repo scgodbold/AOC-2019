@@ -9,6 +9,7 @@ import (
 	"github.com/scgodbold/AOC-2019/five"
 	"github.com/scgodbold/AOC-2019/four"
 	"github.com/scgodbold/AOC-2019/one"
+	"github.com/scgodbold/AOC-2019/seven"
 	"github.com/scgodbold/AOC-2019/six"
 	"github.com/scgodbold/AOC-2019/three"
 	"github.com/scgodbold/AOC-2019/two"
@@ -61,16 +62,18 @@ func main() {
 	// // TODO: Dynamically call the correct day based on inputs
 	switch day {
 	case 1:
-		one.DayOne(input)
+		one.Run(input)
 	case 2:
-		two.DayTwo(input)
+		two.Run(input)
 	case 3:
-		three.DayThree(input)
+		three.Run(input)
 	case 4:
-		four.DayFour(input)
+		four.Run(input)
 	case 5:
-		five.DayFive(input)
+		five.Run(input)
 	case 6:
-		six.DaySix(input)
+		six.Run(input)
+	case 7:
+		seven.Run(input)
 	}
 }

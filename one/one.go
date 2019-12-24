@@ -72,7 +72,7 @@ func DayOnePartTwo(input []string) (int64, error) {
 	return sum, nil
 }
 
-func DayOne(input []string) {
+func Run(input []string) {
 	// PartOne
 	baseFuel, err := DayOnePartOne(input)
 	if err != nil {

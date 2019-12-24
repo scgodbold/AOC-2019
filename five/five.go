@@ -6,7 +6,7 @@ import (
 	"github.com/scgodbold/AOC-2019/lib/opcode"
 )
 
-func DayFive(input []string) {
+func Run(input []string) {
 	// Part 1, provide input of 1 and run
 	prog := opcode.NewProgram(input)
 	prog.AddInput(1)

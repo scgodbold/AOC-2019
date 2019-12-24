@@ -54,7 +54,7 @@ func DayTwoPartTwo(prog *opcode.Program) (int, int) {
 	return noun, verb
 }
 
-func DayTwo(input []string) {
+func Run(input []string) {
 
 	prog := opcode.NewProgram(input)
 

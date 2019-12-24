@@ -142,7 +142,7 @@ func wiresLargestDirection(wires []*wire) int {
 	return int(max)
 }
 
-func DayThree(input []string) {
+func Run(input []string) {
 	// Input -> wires
 	wires := make([]*wire, len(input))
 	for i, val := range input {

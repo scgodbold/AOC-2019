@@ -9,6 +9,10 @@ func compProgram(a Program, b Program) bool {
 		return false
 	}
 
+	if a.State != b.State {
+		return false
+	}
+
 	if a.Memory.Size != b.Memory.Size {
 		return false
 	}
@@ -48,6 +52,7 @@ func TestProgramAdd(t *testing.T) {
 		[]int{},
 		[]int{},
 		0,
+		0,
 	}
 
 	input := &instruction{
@@ -66,6 +71,7 @@ func TestProgramAdd(t *testing.T) {
 		4,
 		[]int{},
 		[]int{},
+		0,
 		0,
 	}
 
@@ -87,6 +93,7 @@ func TestProgramMultiply(t *testing.T) {
 		[]int{},
 		[]int{},
 		0,
+		0,
 	}
 
 	input := &instruction{
@@ -105,6 +112,7 @@ func TestProgramMultiply(t *testing.T) {
 		4,
 		[]int{},
 		[]int{},
+		0,
 		0,
 	}
 
@@ -132,6 +140,7 @@ func TestProgramJumpIfTrue(t *testing.T) {
 				[]int{},
 				[]int{},
 				0,
+				0,
 			},
 			&instruction{
 				1,
@@ -151,6 +160,7 @@ func TestProgramJumpIfTrue(t *testing.T) {
 				0,
 				[]int{},
 				[]int{},
+				0,
 				0,
 			},
 			&instruction{
@@ -189,6 +199,7 @@ func TestProgramJumpIfFalse(t *testing.T) {
 				[]int{},
 				[]int{},
 				0,
+				0,
 			},
 			&instruction{
 				1,
@@ -208,6 +219,7 @@ func TestProgramJumpIfFalse(t *testing.T) {
 				0,
 				[]int{},
 				[]int{},
+				0,
 				0,
 			},
 			&instruction{
@@ -245,6 +257,7 @@ func TestProgramLessThan(t *testing.T) {
 				[]int{},
 				[]int{},
 				0,
+				0,
 			},
 			&instruction{
 				1,
@@ -264,6 +277,7 @@ func TestProgramLessThan(t *testing.T) {
 				0,
 				[]int{},
 				[]int{},
+				0,
 				0,
 			},
 			&instruction{
@@ -302,6 +316,7 @@ func TestProgramEqual(t *testing.T) {
 				[]int{},
 				[]int{},
 				0,
+				0,
 			},
 			&instruction{
 				1,
@@ -321,6 +336,7 @@ func TestProgramEqual(t *testing.T) {
 				0,
 				[]int{},
 				[]int{},
+				0,
 				0,
 			},
 			&instruction{
@@ -359,6 +375,7 @@ func TestProgramOutput(t *testing.T) {
 				[]int{},
 				[]int{},
 				0,
+				0,
 			},
 			&instruction{
 				1,
@@ -375,6 +392,7 @@ func TestProgramOutput(t *testing.T) {
 				2,
 				[]int{5},
 				[]int{},
+				0,
 				0,
 			},
 		},
@@ -406,6 +424,7 @@ func TestProgramAddInput(t *testing.T) {
 				[]int{},
 				[]int{},
 				0,
+				0,
 			},
 			5,
 			Program{
@@ -417,6 +436,7 @@ func TestProgramAddInput(t *testing.T) {
 				0,
 				[]int{},
 				[]int{5},
+				0,
 				0,
 			},
 		},
@@ -448,6 +468,7 @@ func TestProgramInput(t *testing.T) {
 				[]int{},
 				[]int{10},
 				0,
+				0,
 			},
 			&instruction{
 				1,
@@ -464,7 +485,8 @@ func TestProgramInput(t *testing.T) {
 				2,
 				[]int{},
 				[]int{10},
-				1,
+				0,
+				0,
 			},
 		},
 		{
@@ -478,35 +500,6 @@ func TestProgramInput(t *testing.T) {
 				[]int{},
 				[]int{},
 				0,
-			},
-			&instruction{
-				1,
-				0,
-				0,
-				3,
-			},
-			Program{
-				&memory{
-					[]int{5, 2, 2, 99, 0},
-					[]int{5, 2, 2, 99, 0},
-					5,
-				},
-				6,
-				[]int{},
-				[]int{},
-				0,
-			},
-		},
-		{
-			Program{
-				&memory{
-					[]int{5, 2, 2, 99, 0},
-					[]int{5, 2, 2, 99, 0},
-					5,
-				},
-				0,
-				[]int{},
-				[]int{10},
 				1,
 			},
 			&instruction{
@@ -521,9 +514,42 @@ func TestProgramInput(t *testing.T) {
 					[]int{5, 2, 2, 99, 0},
 					5,
 				},
-				6,
+				0,
+				[]int{},
+				[]int{},
+				0,
+				1,
+			},
+		},
+		{
+			Program{
+				&memory{
+					[]int{5, 2, 2, 99, 0},
+					[]int{5, 2, 2, 99, 0},
+					5,
+				},
+				0,
 				[]int{},
 				[]int{10},
+				1,
+				0,
+			},
+			&instruction{
+				1,
+				0,
+				0,
+				3,
+			},
+			Program{
+				&memory{
+					[]int{5, 2, 2, 99, 0},
+					[]int{5, 2, 2, 99, 0},
+					5,
+				},
+				0,
+				[]int{},
+				[]int{10},
+				1,
 				1,
 			},
 		},

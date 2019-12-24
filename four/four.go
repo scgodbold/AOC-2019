@@ -89,7 +89,7 @@ func generatePasswordsTwo(lower int, upper int) []int {
 	return passwords
 }
 
-func DayFour(input []string) {
+func Run(input []string) {
 	lower, upper := getBounds(input)
 	passwords := generatePasswordsOne(lower, upper)
 	fmt.Printf("Passwords between %v and %v: %v\n", lower, upper, len(passwords))

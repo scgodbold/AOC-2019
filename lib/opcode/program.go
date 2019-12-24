@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-const DEBUG = true
+const DEBUG = false
 
 type Program struct {
 	Memory       *memory
@@ -12,6 +12,7 @@ type Program struct {
 	Outputs      []int
 	Inputs       []int
 	inputPointer int
+	State        int // 0 - Ready, 1 - Waiting for Input, 2 - Complete
 }
 
 func log(line string) {
@@ -22,6 +23,7 @@ func log(line string) {
 
 func (p *Program) Reset() {
 	p.Memory.Reset()
+	p.State = 0
 	p.Pointer = 0
 	p.Inputs = []int{}
 	p.Outputs = []int{}
@@ -108,12 +110,15 @@ func (p *Program) Output(i *instruction) {
 func (p *Program) AddInput(val int) {
 	log(fmt.Sprintf("[Program.AddInput] - Adding Value as input: %v", val))
 	p.Inputs = append(p.Inputs, val)
+	if p.State == 1 {
+		p.State = 0
+	}
 }
 
 func (p *Program) Input(i *instruction) {
 	if len(p.Inputs) < 1 || len(p.Inputs) <= p.inputPointer {
-		log(fmt.Sprintf("[Program.Input] Unable to get input, setting program to exit"))
-		p.End(i)
+		log(fmt.Sprintf("[Program.Input] Waiting for additional Input"))
+		p.State = 1
 		return
 	}
 
@@ -129,6 +134,7 @@ func (p *Program) Input(i *instruction) {
 func (p *Program) End(i *instruction) {
 	log("[Program.End] Exiting Program")
 	p.Pointer = p.Memory.Size + 1
+	p.State = 2
 }
 
 func (p *Program) Step() {
@@ -156,12 +162,13 @@ func (p *Program) Step() {
 		p.End(i)
 	default:
 		log(fmt.Sprintf("[Program.Error] - Reached unknown opcode %v", i.Code))
+
 	}
 }
 
 func (p *Program) Run() {
 	for {
-		if p.Pointer >= p.Memory.Size {
+		if p.Pointer >= p.Memory.Size || p.State != 0 {
 			break
 		}
 		p.Step()

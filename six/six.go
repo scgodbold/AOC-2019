@@ -76,7 +76,7 @@ func NewPlanets(input []string) *Planets {
 	return &p
 }
 
-func DaySix(input []string) {
+func Run(input []string) {
 	p := NewPlanets(input)
 	fmt.Printf("Total Orbit Count: %v", p.CountOrbits())
 	fmt.Printf("Total Moves to reach Santa: %v", p.ShortestDistance("YOU", "SAN"))
