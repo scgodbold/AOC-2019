@@ -47,7 +47,7 @@ func TestProgramAdd(t *testing.T) {
 		0,
 		[]int{},
 		[]int{},
-		0
+		0,
 	}
 
 	input := &instruction{
@@ -66,7 +66,7 @@ func TestProgramAdd(t *testing.T) {
 		4,
 		[]int{},
 		[]int{},
-		0
+		0,
 	}
 
 	test.Add(input)
@@ -86,7 +86,7 @@ func TestProgramMultiply(t *testing.T) {
 		0,
 		[]int{},
 		[]int{},
-		0
+		0,
 	}
 
 	input := &instruction{
@@ -105,7 +105,7 @@ func TestProgramMultiply(t *testing.T) {
 		4,
 		[]int{},
 		[]int{},
-		0
+		0,
 	}
 
 	test.Multiply(input)
@@ -130,8 +130,8 @@ func TestProgramJumpIfTrue(t *testing.T) {
 				},
 				0,
 				[]int{},
-		[]int{},
-		0
+				[]int{},
+				0,
 			},
 			&instruction{
 				1,
@@ -150,8 +150,8 @@ func TestProgramJumpIfTrue(t *testing.T) {
 				},
 				0,
 				[]int{},
-		[]int{},
-		0
+				[]int{},
+				0,
 			},
 			&instruction{
 				1,
@@ -187,8 +187,8 @@ func TestProgramJumpIfFalse(t *testing.T) {
 				},
 				0,
 				[]int{},
-		[]int{},
-		0
+				[]int{},
+				0,
 			},
 			&instruction{
 				1,
@@ -207,6 +207,8 @@ func TestProgramJumpIfFalse(t *testing.T) {
 				},
 				0,
 				[]int{},
+				[]int{},
+				0,
 			},
 			&instruction{
 				1,
@@ -241,6 +243,8 @@ func TestProgramLessThan(t *testing.T) {
 				},
 				0,
 				[]int{},
+				[]int{},
+				0,
 			},
 			&instruction{
 				1,
@@ -259,6 +263,8 @@ func TestProgramLessThan(t *testing.T) {
 				},
 				0,
 				[]int{},
+				[]int{},
+				0,
 			},
 			&instruction{
 				1,
@@ -294,6 +300,8 @@ func TestProgramEqual(t *testing.T) {
 				},
 				0,
 				[]int{},
+				[]int{},
+				0,
 			},
 			&instruction{
 				1,
@@ -312,6 +320,8 @@ func TestProgramEqual(t *testing.T) {
 				},
 				0,
 				[]int{},
+				[]int{},
+				0,
 			},
 			&instruction{
 				1,
@@ -347,6 +357,8 @@ func TestProgramOutput(t *testing.T) {
 				},
 				0,
 				[]int{},
+				[]int{},
+				0,
 			},
 			&instruction{
 				1,
@@ -362,6 +374,8 @@ func TestProgramOutput(t *testing.T) {
 				},
 				2,
 				[]int{5},
+				[]int{},
+				0,
 			},
 		},
 	}
@@ -371,6 +385,154 @@ func TestProgramOutput(t *testing.T) {
 
 		if !compProgram(test.Program, test.Expected) {
 			t.Errorf("Program failed Output operation. Expected (%v, %v), Got (%v, %v)", test.Program.Outputs, test.Program.Pointer, test.Expected.Outputs, test.Expected.Pointer)
+		}
+	}
+}
+
+func TestProgramAddInput(t *testing.T) {
+	tests := []struct {
+		Program  Program
+		Input    int
+		Expected Program
+	}{
+		{
+			Program{
+				&memory{
+					[]int{5, 2, 2, 99, 0},
+					[]int{5, 2, 2, 99, 0},
+					5,
+				},
+				0,
+				[]int{},
+				[]int{},
+				0,
+			},
+			5,
+			Program{
+				&memory{
+					[]int{5, 2, 2, 99, 0},
+					[]int{5, 2, 2, 99, 0},
+					5,
+				},
+				0,
+				[]int{},
+				[]int{5},
+				0,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		test.Program.AddInput(test.Input)
+
+		if !compProgram(test.Program, test.Expected) {
+			t.Errorf("Program failed AddInput operation. Expected %v, Got %v", test.Program.Inputs, test.Expected.Inputs)
+		}
+	}
+}
+
+func TestProgramInput(t *testing.T) {
+	tests := []struct {
+		Program  Program
+		Input    *instruction
+		Expected Program
+	}{
+		{
+			Program{
+				&memory{
+					[]int{5, 2, 2, 99, 0},
+					[]int{5, 2, 2, 99, 0},
+					5,
+				},
+				0,
+				[]int{},
+				[]int{10},
+				0,
+			},
+			&instruction{
+				1,
+				0,
+				0,
+				3,
+			},
+			Program{
+				&memory{
+					[]int{5, 2, 2, 99, 0},
+					[]int{10, 2, 2, 99, 0},
+					5,
+				},
+				2,
+				[]int{},
+				[]int{10},
+				1,
+			},
+		},
+		{
+			Program{
+				&memory{
+					[]int{5, 2, 2, 99, 0},
+					[]int{5, 2, 2, 99, 0},
+					5,
+				},
+				0,
+				[]int{},
+				[]int{},
+				0,
+			},
+			&instruction{
+				1,
+				0,
+				0,
+				3,
+			},
+			Program{
+				&memory{
+					[]int{5, 2, 2, 99, 0},
+					[]int{5, 2, 2, 99, 0},
+					5,
+				},
+				6,
+				[]int{},
+				[]int{},
+				0,
+			},
+		},
+		{
+			Program{
+				&memory{
+					[]int{5, 2, 2, 99, 0},
+					[]int{5, 2, 2, 99, 0},
+					5,
+				},
+				0,
+				[]int{},
+				[]int{10},
+				1,
+			},
+			&instruction{
+				1,
+				0,
+				0,
+				3,
+			},
+			Program{
+				&memory{
+					[]int{5, 2, 2, 99, 0},
+					[]int{5, 2, 2, 99, 0},
+					5,
+				},
+				6,
+				[]int{},
+				[]int{10},
+				1,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		test.Program.Input(test.Input)
+		if !compProgram(test.Program, test.Expected) {
+			t.Errorf("Program failed to fetch Input. Expected (%v, %v), Got (%v, %v)", test.Expected.Memory.Current, test.Expected.Pointer, test.Program.Memory.Current, test.Program.Pointer)
 		}
 	}
 }

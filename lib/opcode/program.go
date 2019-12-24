@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-const DEBUG = false
+const DEBUG = true
 
 type Program struct {
 	Memory       *memory
@@ -23,6 +23,9 @@ func log(line string) {
 func (p *Program) Reset() {
 	p.Memory.Reset()
 	p.Pointer = 0
+	p.Inputs = []int{}
+	p.Outputs = []int{}
+	p.inputPointer = 0
 }
 
 func (p *Program) Add(i *instruction) {
@@ -111,6 +114,7 @@ func (p *Program) Input(i *instruction) {
 	if len(p.Inputs) < 1 || len(p.Inputs) <= p.inputPointer {
 		log(fmt.Sprintf("[Program.Input] Unable to get input, setting program to exit"))
 		p.End(i)
+		return
 	}
 
 	val := p.Inputs[p.inputPointer]
@@ -137,7 +141,7 @@ func (p *Program) Step() {
 	case 2:
 		p.Multiply(i)
 	case 3:
-		break
+		p.Input(i)
 	case 4:
 		p.Output(i)
 	case 5:
