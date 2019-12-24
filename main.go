@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/scgodbold/AOC-2019/eight"
 	"github.com/scgodbold/AOC-2019/five"
 	"github.com/scgodbold/AOC-2019/four"
 	"github.com/scgodbold/AOC-2019/one"
@@ -75,5 +76,7 @@ func main() {
 		six.Run(input)
 	case 7:
 		seven.Run(input)
+	case 8:
+		eight.Run(input)
 	}
 }
