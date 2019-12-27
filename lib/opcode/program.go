@@ -7,12 +7,13 @@ import (
 const DEBUG = false
 
 type Program struct {
-	Memory       *memory
-	Pointer      int
-	Outputs      []int
-	Inputs       []int
-	inputPointer int
-	State        int // 0 - Ready, 1 - Waiting for Input, 2 - Complete
+	Memory          *memory
+	Pointer         int
+	Outputs         []int
+	Inputs          []int
+	inputPointer    int
+	State           int // 0 - Ready, 1 - Waiting for Input, 2 - Complete
+	RelativePointer int
 }
 
 func log(line string) {
@@ -137,9 +138,17 @@ func (p *Program) End(i *instruction) {
 	p.State = 2
 }
 
+func (p *Program) MoveRelative(i *instruction) {
+	val := p.Memory.Get(i.ParamOnePointer)
+	p.RelativePointer += val
+	log(fmt.Sprintf("[Program.MoveRelative] Adjusting Relative pointer by %v, new value is %v", val, p.RelativePointer))
+	p.Pointer += 2
+
+}
+
 func (p *Program) Step() {
 	log(fmt.Sprintf("[Program.Step] - Evaluating Step at %v", p.Pointer))
-	i := NewInstruction(p.Pointer, p.Memory)
+	i := NewInstruction(p.Pointer, p.RelativePointer, p.Memory)
 
 	switch i.Code {
 	case 1:
@@ -158,11 +167,12 @@ func (p *Program) Step() {
 		p.LessThan(i)
 	case 8:
 		p.Equal(i)
+	case 9:
+		p.MoveRelative(i)
 	case 99:
 		p.End(i)
 	default:
 		log(fmt.Sprintf("[Program.Error] - Reached unknown opcode %v", i.Code))
-
 	}
 }
 
@@ -181,6 +191,7 @@ func (p *Program) Initialize(input []string) {
 	p.Inputs = []int{}
 	p.Pointer = 0
 	p.inputPointer = 0
+	p.RelativePointer = 0
 }
 
 func NewProgram(input []string) *Program {

@@ -9,6 +9,7 @@ import (
 	"github.com/scgodbold/AOC-2019/eight"
 	"github.com/scgodbold/AOC-2019/five"
 	"github.com/scgodbold/AOC-2019/four"
+	"github.com/scgodbold/AOC-2019/nine"
 	"github.com/scgodbold/AOC-2019/one"
 	"github.com/scgodbold/AOC-2019/seven"
 	"github.com/scgodbold/AOC-2019/six"
@@ -78,5 +79,7 @@ func main() {
 		seven.Run(input)
 	case 8:
 		eight.Run(input)
+	case 9:
+		nine.Run(input)
 	}
 }
